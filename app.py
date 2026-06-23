@@ -76,7 +76,7 @@ if page == "🏠 Homepage Dashboard":
         if not df_status.empty:
             fig = px.pie(df_status, names="status", values="count",
                          color_discrete_sequence=px.colors.qualitative.Set3)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     with col2:
         st.subheader("Top 10 Airlines by Flights")
@@ -93,7 +93,7 @@ if page == "🏠 Homepage Dashboard":
                          orientation="h", color="total_flights",
                          color_continuous_scale="Blues")
             fig.update_layout(yaxis={"categoryorder": "total ascending"})
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
     # Delay heatmap
     st.subheader("Airport Delay Overview")
@@ -109,7 +109,7 @@ if page == "🏠 Homepage Dashboard":
                      labels={"avg_delay_min": "Avg Delay (min)",
                              "airport_iata": "Airport"},
                      color_continuous_scale="Reds")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
 # ══════════════════════════════════════════════════════════════
 # PAGE 2 — Search & Filter Flights
@@ -160,7 +160,7 @@ elif page == "🔍 Search & Filter Flights":
     """, params if params else None)
 
     st.markdown(f"**{len(df_flights)} flights found**")
-    st.dataframe(df_flights, use_container_width=True, height=500)
+    st.dataframe(df_flights, width="stretch", height=500)
 
 # ══════════════════════════════════════════════════════════════
 # PAGE 3 — Airport Details
@@ -231,7 +231,7 @@ elif page == "🛫 Airport Details":
             ORDER BY actual_arrival DESC
             LIMIT 10
         """, (iata,))
-        st.dataframe(df_arr, use_container_width=True)
+        st.dataframe(df_arr, width="stretch")
 
 # ══════════════════════════════════════════════════════════════
 # PAGE 4 — Delay Analysis
@@ -254,7 +254,7 @@ elif page == "⏱️ Delay Analysis":
                      labels={"avg_delay_min": "Avg Delay (min)",
                              "airport_iata": "Airport"},
                      color_continuous_scale="Oranges")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col2:
         st.subheader("Delayed vs Canceled Flights")
@@ -267,13 +267,13 @@ elif page == "⏱️ Delay Analysis":
                      y=["delayed_flights", "canceled_flights"],
                      barmode="group",
                      labels={"value": "Flights", "airport_iata": "Airport"})
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.subheader("Delay % per Destination Airport")
     df_pct = run_query("""
         SELECT a.name AS airport_name, a.iata_code,
                COUNT(f.flight_id) AS total_arrivals,
-               SUM(CASE WHEN f.status = 'Delayed' THEN 1 ELSE 0 END) AS delayed_arrivals,
+               SUM(CASE WHEN f.status = 'Delayed' THEN 1 ELSE 0 END) AS 'delayed',
                ROUND(SUM(CASE WHEN f.status='Delayed' THEN 1 ELSE 0 END)
                      * 100.0 / COUNT(f.flight_id), 2) AS delay_pct
         FROM flights f
@@ -286,8 +286,8 @@ elif page == "⏱️ Delay Analysis":
                  text="delay_pct", color="delay_pct",
                  color_continuous_scale="RdYlGn_r",
                  labels={"delay_pct": "Delay %", "iata_code": "Airport"})
-    st.plotly_chart(fig, use_container_width=True)
-    st.dataframe(df_pct, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
+    st.dataframe(df_pct, width="stretch")
 
 # ══════════════════════════════════════════════════════════════
 # PAGE 5 — Route Leaderboards
@@ -315,7 +315,7 @@ elif page == "🏆 Route Leaderboards":
                      orientation="h", color="total_flights",
                      color_continuous_scale="Blues")
         fig.update_layout(yaxis={"categoryorder": "total ascending"})
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col2:
         st.subheader("😴 Most Delayed Airports")
@@ -330,7 +330,7 @@ elif page == "🏆 Route Leaderboards":
                      labels={"avg_delay_min": "Avg Delay (min)",
                              "airport_iata": "Airport"},
                      color_continuous_scale="Reds")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.subheader("Top Airports by Total Flights")
     df_top = run_query("""
@@ -348,7 +348,7 @@ elif page == "🏆 Route Leaderboards":
         ORDER BY total DESC
         LIMIT 10
     """)
-    st.dataframe(df_top, use_container_width=True)
+    st.dataframe(df_top, width="stretch")
 
 # ══════════════════════════════════════════════════════════════
 # PAGE 6 — SQL Query Results
@@ -408,7 +408,7 @@ elif page == "📊 SQL Query Results":
         "Q8: Flights by Airline & Status": """
             SELECT f.airline_name,
                    SUM(CASE WHEN f.status IN ('Arrived','Departed') THEN 1 ELSE 0 END) AS on_time,
-                   SUM(CASE WHEN f.status='Delayed'  THEN 1 ELSE 0 END) AS `delayed`,
+                   SUM(CASE WHEN f.status='Delayed'  THEN 1 ELSE 0 END) AS 'delayed',
                    SUM(CASE WHEN f.status='Canceled' THEN 1 ELSE 0 END) AS canceled,
                    SUM(CASE WHEN f.status='Expected' THEN 1 ELSE 0 END) AS expected,
                    COUNT(*) AS total
@@ -436,7 +436,7 @@ elif page == "📊 SQL Query Results":
         """,
         "Q11: Delay % per Destination Airport": """
             SELECT a.name, a.iata_code, COUNT(f.flight_id) AS total,
-                   SUM(CASE WHEN f.status='Delayed' THEN 1 ELSE 0 END) AS delayed,
+                   SUM(CASE WHEN f.status='Delayed' THEN 1 ELSE 0 END) AS 'delayed',
                    ROUND(SUM(CASE WHEN f.status='Delayed' THEN 1 ELSE 0 END)*100.0/COUNT(f.flight_id),2) AS pct
             FROM flights f JOIN airport a ON f.destination_iata = a.iata_code
             GROUP BY a.iata_code, a.name HAVING total > 0
@@ -447,7 +447,7 @@ elif page == "📊 SQL Query Results":
     selected_q = st.selectbox("Select Query", list(queries.keys()))
     df_result = run_query(queries[selected_q])
     st.markdown(f"**{len(df_result)} rows returned**")
-    st.dataframe(df_result, use_container_width=True)
+    st.dataframe(df_result, width="stretch")
 
     if len(df_result) > 0 and df_result.select_dtypes(include="number").shape[1] > 0:
         num_col = df_result.select_dtypes(include="number").columns[0]
@@ -455,4 +455,4 @@ elif page == "📊 SQL Query Results":
         if str_col:
             fig = px.bar(df_result.head(20), x=str_col, y=num_col, color=num_col,
                          color_continuous_scale="Viridis")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
