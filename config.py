@@ -3,7 +3,21 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_KEY = os.getenv("API_KEY")
+# Works both locally (.env) and on Streamlit Cloud (st.secrets)
+try:
+    import streamlit as st
+    API_KEY  = st.secrets["API_KEY"]
+    DB_HOST  = st.secrets["DB_HOST"]
+    DB_USER  = st.secrets["DB_USER"]
+    DB_PASSWORD = st.secrets["DB_PASSWORD"]
+    DB_NAME_VAL = st.secrets["DB_NAME"]
+except Exception:
+    API_KEY  = os.getenv("API_KEY")
+    DB_HOST  = os.getenv("DB_HOST")
+    DB_USER  = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_NAME_VAL = os.getenv("DB_NAME")
+
 API_HOST = "aerodatabox.p.rapidapi.com"
 
 HEADERS = {
@@ -12,11 +26,12 @@ HEADERS = {
 }
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST"),
-    "port": 3306 ,
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
+    "host": DB_HOST,
+    "port": 3306,
+    "user": DB_USER,
+    "password": DB_PASSWORD,
+    "use_pure": True
 }
 
-DB_NAME = os.getenv("DB_NAME")
+DB_NAME = DB_NAME_VAL
 
