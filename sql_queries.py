@@ -102,8 +102,8 @@ def query5():
             f.origin_iata,
             f.destination_iata,
             CASE 
-                WHEN a_orig.country = a_dest.country THEN 'Domestic'
-                ELSE 'International'
+                WHEN a_orig.country = a_dest.country THEN 'International'
+                ELSE 'Domestic'
             END AS flight_type
         FROM flights f
         LEFT JOIN airport a_orig ON f.origin_iata    = a_orig.iata_code

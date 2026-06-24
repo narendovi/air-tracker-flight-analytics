@@ -28,7 +28,7 @@ def run_query(query, params=None):
         return pd.DataFrame()
 
 # ── Sidebar navigation ────────────────────────────────────────
-st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Airplane_silhouette.svg/200px-Airplane_silhouette.svg.png", width=80)
+st.sidebar.markdown("# ✈️")
 st.sidebar.title("✈️ Air Tracker")
 page = st.sidebar.radio("Navigation", [
     "🏠 Homepage Dashboard",
@@ -223,14 +223,13 @@ elif page == "🛫 Airport Details":
 
         st.subheader("Recent Arrivals")
         df_arr = run_query("""
-            SELECT flight_number, origin_iata, airline_name,
-                   status, actual_arrival
+            SELECT flight_number, origin_iata, airline_name, status,
+           COALESCE(actual_arrival, scheduled_arrival) AS arrival_time
             FROM flights
             WHERE destination_iata = %s
-              AND actual_arrival IS NOT NULL
-            ORDER BY actual_arrival DESC
-            LIMIT 10
-        """, (iata,))
+            ORDER BY arrival_time DESC
+             LIMIT 10
+            """, (iata,))
         st.dataframe(df_arr, width="stretch")
 
 # ══════════════════════════════════════════════════════════════
